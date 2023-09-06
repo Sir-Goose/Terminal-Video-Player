@@ -42,7 +42,46 @@ def video_to_frames(video_path, output_folder):
     cap.release()
 
     print(f"Saved {frame_no} frames to {output_folder}")
-def convert_to_array(image_path):
+
+
+def resize_images(folder_path):
+    # Loop through all jpeg files in the folder
+    for filename in os.listdir(folder_path):
+        if filename.endswith(".jpg"):
+            file_path = os.path.join(folder_path, filename)
+
+            # Read the image
+            img = cv2.imread(file_path)
+
+            # Resize the image to 640x480
+            resized_img = cv2.resize(img, (80, 80))
+
+            # Save the resized image back to the same file
+            cv2.imwrite(file_path, resized_img)
+
+            print(f"Resized {filename}")
+
+def frames_to_arrays(folder_path):
+    # Initialize a list to hold 2D arrays
+    frames_array_list = []
+
+    # Loop through all jpeg files in the folder
+    for filename in sorted(os.listdir(folder_path)):
+        if filename.endswith(".jpg"):
+            file_path = os.path.join(folder_path, filename)
+
+            # Convert the JPEG file to a 2D array
+            frame_array = jpg_to_array(file_path)
+
+            # Append the 2D array to the list
+            frames_array_list.append(frame_array)
+
+            print(f"Processed {filename}")
+
+    return frames_array_list
+
+
+def jpg_to_array(image_path):
     # Open the image using PIL
     img = Image.open(image_path)
 
@@ -63,6 +102,7 @@ def convert_to_array(image_path):
 
             average = (r + b + g) / 3
             average = round(average, 0)
+            average = int(average)
 
             # Append the RGB tuple to the row
             row.append(average)
@@ -72,19 +112,53 @@ def convert_to_array(image_path):
 
     return greyscale_image_array
 
+def greyscale_to_ascii(frames_list):
+    frame_count = 0
+    for frame in frames_list:
+        print(f"Proccesing frame {frame_count}")
+        for row in frame:
+            for pixel in row:
+                if pixel < 32:
+                    pixel = ' '
+                if 32 <= pixel < 64:
+                    pixel = '.'
+                if 64 <= pixel < 96:
+                    pixel = ':'
+                if 96 <= pixel < 128:
+                    pixel = '-'
+                if 128 <= pixel < 160:
+                    pixel = '+'
+                if 160 <= pixel < 192:
+                    pixel = '='
+                if 192 <= pixel < 224:
+                    pixel = '%'
+                if 224 <= pixel < 255:
+                    pixel = '@'
 
+    frame_count += 1
 
+    return frames_list
 
 
 
 if __name__ == "__main__":
+    video_to_frames('SpaceOddity.mp4', 'frames')
+    resize_images('frames')
+    frames_list = frames_to_arrays('frames')
+    for frame in frames_list:
+        for row in frame:
+            print(row)
+
     # Replace 'your_image_path_here.jpg' with the path to the image you'd like to convert
-    image_path = 'image.jpeg'
+
+    #image_path = 'image.jpeg'
 
     # Convert the image to a 2D array of RGB values
-    greyscale_image_array = convert_to_array(image_path)
+    #greyscale_image_array = convert_to_array(image_path)
 
     # Print the 2D array
-    for row in greyscale_image_array:
-        print(row)
+    #for row in greyscale_image_array:
+     #   print(row)
+
+
 
