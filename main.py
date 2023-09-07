@@ -1,5 +1,5 @@
 import os
-
+import time
 from PIL import Image
 import cv2
 
@@ -61,6 +61,7 @@ def resize_images(folder_path):
 
             print(f"Resized {filename}")
 
+
 def frames_to_arrays(folder_path):
     # Initialize a list to hold 2D arrays
     frames_array_list = []
@@ -112,53 +113,57 @@ def jpg_to_array(image_path):
 
     return greyscale_image_array
 
+
 def greyscale_to_ascii(frames_list):
     frame_count = 0
-    for frame in frames_list:
-        print(f"Proccesing frame {frame_count}")
-        for row in frame:
-            for pixel in row:
+    for i in range(len(frames_list)):
+        print(f"Processing frame {frame_count}")
+        for j in range(len(frames_list[i])):
+            for k in range(len(frames_list[i][j])):
+                pixel = frames_list[i][j][k]
                 if pixel < 32:
-                    pixel = ' '
-                if 32 <= pixel < 64:
-                    pixel = '.'
-                if 64 <= pixel < 96:
-                    pixel = ':'
-                if 96 <= pixel < 128:
-                    pixel = '-'
-                if 128 <= pixel < 160:
-                    pixel = '+'
-                if 160 <= pixel < 192:
-                    pixel = '='
-                if 192 <= pixel < 224:
-                    pixel = '%'
-                if 224 <= pixel < 255:
-                    pixel = '@'
+                    frames_list[i][j][k] = ' '
+                elif 32 <= pixel < 64:
+                    frames_list[i][j][k] = '.'
+                elif 64 <= pixel < 96:
+                    frames_list[i][j][k] = ':'
+                elif 96 <= pixel < 128:
+                    frames_list[i][j][k] = '-'
+                elif 128 <= pixel < 160:
+                    frames_list[i][j][k] = '+'
+                elif 160 <= pixel < 192:
+                    frames_list[i][j][k] = '='
+                elif 192 <= pixel < 224:
+                    frames_list[i][j][k] = '%'
+                elif 224 <= pixel < 255:
+                    frames_list[i][j][k] = '@'
+                else:
+                    frames_list[i][j][k] = "F"
 
-    frame_count += 1
+        frame_count += 1
 
     return frames_list
 
 
-
 if __name__ == "__main__":
-    video_to_frames('SpaceOddity.mp4', 'frames')
-    resize_images('frames')
+    # video_to_frames('SpaceOddity.mp4', 'frames')
+    # resize_images('frames')
     frames_list = frames_to_arrays('frames')
+    frames_list = greyscale_to_ascii(frames_list)
+
     for frame in frames_list:
         for row in frame:
             print(row)
+        time.sleep(0.033333333)
+        os.system('cls' if os.name == 'nt' else 'clear')
 
     # Replace 'your_image_path_here.jpg' with the path to the image you'd like to convert
 
-    #image_path = 'image.jpeg'
+    # image_path = 'image.jpeg'
 
     # Convert the image to a 2D array of RGB values
-    #greyscale_image_array = convert_to_array(image_path)
+    # greyscale_image_array = convert_to_array(image_path)
 
     # Print the 2D array
-    #for row in greyscale_image_array:
-     #   print(row)
-
-
-
+    # for row in greyscale_image_array:
+    #   print(row)
