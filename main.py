@@ -53,8 +53,8 @@ def resize_images(folder_path):
             # Read the image
             img = cv2.imread(file_path)
 
-            # Resize the image to 640x480
-            resized_img = cv2.resize(img, (80, 80))
+            # Resize the image to 50 rows and 55 columns
+            resized_img = cv2.resize(img, (50, 55))
 
             # Save the resized image back to the same file
             cv2.imwrite(file_path, resized_img)
@@ -86,7 +86,7 @@ def jpg_to_array(image_path):
     # Open the image using PIL
     img = Image.open(image_path)
 
-    # Convert image to RGB (in case it's in another format like RGBA or Grayscale)
+    # Convert image to RGB
     img = img.convert("RGB")
 
     # Get image dimensions
@@ -101,11 +101,12 @@ def jpg_to_array(image_path):
             # Get RGB values of each pixel
             r, g, b = img.getpixel((x, y))
 
+            # Convert to greyscale
             average = (r + b + g) / 3
             average = round(average, 0)
             average = int(average)
 
-            # Append the RGB tuple to the row
+            # Append brightness value
             row.append(average)
 
         # Append the row to the 2D array
@@ -137,8 +138,6 @@ def greyscale_to_ascii(frames_list):
                     frames_list[i][j][k] = '%'
                 elif 224 <= pixel < 255:
                     frames_list[i][j][k] = '@'
-                else:
-                    frames_list[i][j][k] = "F"
 
         frame_count += 1
 
@@ -146,24 +145,18 @@ def greyscale_to_ascii(frames_list):
 
 
 if __name__ == "__main__":
-    # video_to_frames('SpaceOddity.mp4', 'frames')
-    # resize_images('frames')
+    video_to_frames('video_title', 'frames')
+    resize_images('frames')
     frames_list = frames_to_arrays('frames')
     frames_list = greyscale_to_ascii(frames_list)
 
+    # Playback the frames
     for frame in frames_list:
-        for row in frame:
-            print(row)
-        time.sleep(0.033333333)
-        os.system('cls' if os.name == 'nt' else 'clear')
+        # Repeat each frame 10 times to reduce flashing
+        for _ in range(10):
+            for row in frame:
+                print(row)
+            time.sleep(0.0003)
+            os.system('cls' if os.name == 'nt' else 'clear')
 
-    # Replace 'your_image_path_here.jpg' with the path to the image you'd like to convert
 
-    # image_path = 'image.jpeg'
-
-    # Convert the image to a 2D array of RGB values
-    # greyscale_image_array = convert_to_array(image_path)
-
-    # Print the 2D array
-    # for row in greyscale_image_array:
-    #   print(row)
