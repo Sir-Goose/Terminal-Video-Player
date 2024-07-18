@@ -209,7 +209,7 @@ def play_video(frames_list):
         # Clean up curses
         curses.nocbreak()
         stdscr.keypad(False)
-        curses.echo()
+        #curses.echo()
         curses.endwin()
 
 if __name__ == "__main__":
