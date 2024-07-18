@@ -4,6 +4,9 @@ import time
 from PIL import Image
 import cv2
 
+class InsufficientArgumentsError(Exception):
+    """Raised when insufficient arguments are provided."""
+    pass
 
 def video_to_frames(video_path, output_folder):
     # Open the video file
@@ -127,6 +130,7 @@ def greyscale_to_ascii(frames_list):
                     frames_list[i][j][k] = ' '
                 elif 32 <= pixel < 64:
                     frames_list[i][j][k] = '.'
+                    #frames_list[i][j][k] = ' '
                 elif 64 <= pixel < 96:
                     frames_list[i][j][k] = ':'
                 elif 96 <= pixel < 128:
@@ -144,19 +148,34 @@ def greyscale_to_ascii(frames_list):
 
     return frames_list
 
+def clear_screen():
+    # For Windows
+    if os.name == 'nt':
+        _ = os.system('cls')
+    # For macOS and Linux
+    else:
+        _ = os.system('clear')
 
 if __name__ == "__main__":
-    video_title = sys.argv[1]
-    video_to_frames(video_title, 'frames')
-    resize_images('frames')
-    frames_list = frames_to_arrays('frames')
-    frames_list = greyscale_to_ascii(frames_list)
+    try:
+        video_title = sys.argv[1] if len(sys.argv) > 1 else ''
+
+        if video_title:
+            video_to_frames(video_title, 'frames')
+            resize_images('frames')
+            frames_list = frames_to_arrays('frames')
+            frames_list = greyscale_to_ascii(frames_list)
+        else:
+            raise InsufficientArgumentsError("No video title provided. Please provide a video title as an argument.")
+
+    except InsufficientArgumentsError as e:
+        print(f"Error: {e}")
+        sys.exit(1)  # Exit the program with an error code
 
     # Playback the frames
     for frame in frames_list:
-        # Repeat each frame 10 times to reduce flashing
-        for _ in range(10):
+        for _ in range(1):
             for row in frame:
                 print(row)
-            time.sleep(0.0003)
-            os.system('cls' if os.name == 'nt' else 'clear')
+            time.sleep(0.03)
+            clear_screen()
