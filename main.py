@@ -58,8 +58,16 @@ def resize_images(folder_path):
             # Read the image
             img = cv2.imread(file_path)
 
-            # Resize the image to 50 rows and 55 columns
-            resized_img = cv2.resize(img, (50, 55))
+            # Get the original aspect ratio
+            height, width = img.shape[:2]
+            aspect_ratio = width / height
+
+            # Calculate new dimensions
+            new_height = 55
+            new_width = int(new_height * aspect_ratio * 2)  # Multiply by 2 to account for character aspect ratio
+
+            # Resize the image
+            resized_img = cv2.resize(img, (new_width, new_height))
 
             # Save the resized image back to the same file
             cv2.imwrite(file_path, resized_img)
