@@ -176,6 +176,6 @@ if __name__ == "__main__":
     for frame in frames_list:
         for _ in range(1):
             for row in frame:
-                print(row)
+                print(''.join(row))  # Join characters in the row into a single string
             time.sleep(0.03)
             clear_screen()
