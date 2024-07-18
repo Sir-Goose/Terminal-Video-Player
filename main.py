@@ -3,6 +3,7 @@ import sys
 import time
 from PIL import Image
 import cv2
+import curses
 
 class InsufficientArgumentsError(Exception):
     """Raised when insufficient arguments are provided."""
@@ -130,7 +131,6 @@ def greyscale_to_ascii(frames_list):
                     frames_list[i][j][k] = ' '
                 elif 32 <= pixel < 64:
                     frames_list[i][j][k] = '.'
-                    #frames_list[i][j][k] = ' '
                 elif 64 <= pixel < 96:
                     frames_list[i][j][k] = ':'
                 elif 96 <= pixel < 128:
@@ -143,6 +143,7 @@ def greyscale_to_ascii(frames_list):
                     frames_list[i][j][k] = '%'
                 elif 224 <= pixel < 255:
                     frames_list[i][j][k] = '@'
+                frames_list[i][j][k] = str(frames_list[i][j][k])  # Ensure all values are strings
 
         frame_count += 1
 
@@ -179,3 +180,46 @@ if __name__ == "__main__":
                 print(''.join(row))  # Join characters in the row into a single string
             time.sleep(0.03)
             clear_screen()
+
+def play_video(frames_list):
+    # Initialize curses
+    stdscr = curses.initscr()
+    curses.noecho()
+    curses.cbreak()
+    curses.curs_set(0)  # This line disables the cursor
+    stdscr.keypad(True)
+
+    try:
+        for frame in frames_list:
+            stdscr.clear()
+            for y, row in enumerate(frame):
+                stdscr.addstr(y, 0, ''.join(row))
+            stdscr.refresh()
+            time.sleep(0.03)
+
+    finally:
+        # Clean up curses
+        curses.nocbreak()
+        stdscr.keypad(False)
+        curses.echo()
+        curses.endwin()
+
+if __name__ == "__main__":
+    try:
+        video_title = sys.argv[1] if len(sys.argv) > 1 else ''
+
+        if video_title:
+            video_to_frames(video_title, 'frames')
+            resize_images('frames')
+            frames_list = frames_to_arrays('frames')
+            frames_list = greyscale_to_ascii(frames_list)
+        else:
+            raise InsufficientArgumentsError("No video title provided. Please provide a video title as an argument.")
+
+
+    except InsufficientArgumentsError as e:
+        print(f"Error: {e}")
+        sys.exit(1)
+
+
+    play_video(frames_list)
