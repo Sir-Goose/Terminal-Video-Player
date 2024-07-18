@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 from PIL import Image
 import cv2
@@ -145,7 +146,8 @@ def greyscale_to_ascii(frames_list):
 
 
 if __name__ == "__main__":
-    video_to_frames('video_title', 'frames')
+    video_title = sys.argv[1]
+    video_to_frames(video_title, 'frames')
     resize_images('frames')
     frames_list = frames_to_arrays('frames')
     frames_list = greyscale_to_ascii(frames_list)
@@ -158,5 +160,3 @@ if __name__ == "__main__":
                 print(row)
             time.sleep(0.0003)
             os.system('cls' if os.name == 'nt' else 'clear')
-
-
