@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+from typing import List, Optional
 from PIL import Image
 import cv2
 import curses
@@ -9,7 +10,7 @@ class InsufficientArgumentsError(Exception):
     """Raised when insufficient arguments are provided."""
     pass
 
-def video_to_frames(video_path, output_folder):
+def video_to_frames(video_path: str, output_folder: str) -> None:
     # Open the video file
     cap = cv2.VideoCapture(video_path)
 
@@ -49,7 +50,7 @@ def video_to_frames(video_path, output_folder):
     print(f"Saved {frame_no} frames to {output_folder}")
 
 
-def resize_images(folder_path):
+def resize_images(folder_path: str) -> None:
     # Loop through all jpeg files in the folder
     for filename in os.listdir(folder_path):
         if filename.endswith(".jpg"):
@@ -75,7 +76,7 @@ def resize_images(folder_path):
             print(f"Resized {filename}")
 
 
-def frames_to_arrays(folder_path):
+def frames_to_arrays(folder_path: str) -> List[List[List[int]]]:
     # Initialize a list to hold 2D arrays
     frames_array_list = []
 
@@ -95,7 +96,7 @@ def frames_to_arrays(folder_path):
     return frames_array_list
 
 
-def jpg_to_array(image_path):
+def jpg_to_array(image_path: str) -> List[List[int]]:
     # Open the image using PIL
     img = Image.open(image_path)
 
@@ -128,7 +129,7 @@ def jpg_to_array(image_path):
     return greyscale_image_array
 
 
-def greyscale_to_ascii(frames_list):
+def greyscale_to_ascii(frames_list: List[list[list[int]]]) -> List[List[List[str]]]:
     frame_count = 0
     for i in range(len(frames_list)):
         print(f"Processing frame {frame_count}")
@@ -157,7 +158,7 @@ def greyscale_to_ascii(frames_list):
 
     return frames_list
 
-def clear_screen():
+def clear_screen() -> None:
     # For Windows
     if os.name == 'nt':
         _ = os.system('cls')
