@@ -1,7 +1,7 @@
 import os
 import sys
 import time
-from typing import List, Optional
+from typing import List, Optional, Union, TypeVar
 from PIL import Image
 import cv2
 import curses
@@ -129,34 +129,39 @@ def jpg_to_array(image_path: str) -> List[List[int]]:
     return greyscale_image_array
 
 
-def greyscale_to_ascii(frames_list: List[list[list[int]]]) -> List[List[List[str]]]:
-    frame_count = 0
-    for i in range(len(frames_list)):
-        print(f"Processing frame {frame_count}")
-        for j in range(len(frames_list[i])):
-            for k in range(len(frames_list[i][j])):
-                pixel = frames_list[i][j][k]
-                if pixel < 32:
-                    frames_list[i][j][k] = ' '
-                elif 32 <= pixel < 64:
-                    frames_list[i][j][k] = '.'
-                elif 64 <= pixel < 96:
-                    frames_list[i][j][k] = ':'
-                elif 96 <= pixel < 128:
-                    frames_list[i][j][k] = '-'
-                elif 128 <= pixel < 160:
-                    frames_list[i][j][k] = '+'
-                elif 160 <= pixel < 192:
-                    frames_list[i][j][k] = '='
-                elif 192 <= pixel < 224:
-                    frames_list[i][j][k] = '%'
-                elif 224 <= pixel < 255:
-                    frames_list[i][j][k] = '@'
-                frames_list[i][j][k] = str(frames_list[i][j][k])  # Ensure all values are strings
+def greyscale_to_ascii(frames_list: List[List[List[int]]]) -> List[List[List[str]]]:
+    result: List[List[List[str]]] = []
 
+    frame_count = 0
+    for frame in frames_list:
+        print(f"Processing frame {frame_count}")
+        ascii_frame: List[List[str]] = []
+        for row in frame:
+            ascii_row: List[str] = []
+            for pixel in row:
+                if pixel < 32:
+                    ascii_char = ' '
+                elif 32 <= pixel < 64:
+                    ascii_char = '.'
+                elif 64 <= pixel < 96:
+                    ascii_char = ':'
+                elif 96 <= pixel < 128:
+                    ascii_char = '-'
+                elif 128 <= pixel < 160:
+                    ascii_char = '+'
+                elif 160 <= pixel < 192:
+                    ascii_char = '='
+                elif 192 <= pixel < 224:
+                    ascii_char = '%'
+                elif 224 <= pixel < 255:
+                    ascii_char = '@'
+                else: ascii_char = ' '
+                ascii_row.append(ascii_char)
+            ascii_frame.append(ascii_row)
+        result.append(ascii_frame)
         frame_count += 1
 
-    return frames_list
+    return result
 
 def clear_screen() -> None:
     # For Windows
@@ -166,31 +171,8 @@ def clear_screen() -> None:
     else:
         _ = os.system('clear')
 
-if __name__ == "__main__":
-    try:
-        video_title = sys.argv[1] if len(sys.argv) > 1 else ''
 
-        if video_title:
-            video_to_frames(video_title, 'frames')
-            resize_images('frames')
-            frames_list = frames_to_arrays('frames')
-            frames_list = greyscale_to_ascii(frames_list)
-        else:
-            raise InsufficientArgumentsError("No video title provided. Please provide a video title as an argument.")
-
-    except InsufficientArgumentsError as e:
-        print(f"Error: {e}")
-        sys.exit(1)  # Exit the program with an error code
-
-    # Playback the frames
-    for frame in frames_list:
-        for _ in range(1):
-            for row in frame:
-                print(''.join(row))  # Join characters in the row into a single string
-            time.sleep(0.03)
-            clear_screen()
-
-def play_video(frames_list):
+def play_video(frames_list: List[List[List[str]]]) -> None:
     # Initialize curses
     stdscr = curses.initscr()
     curses.noecho()
@@ -215,13 +197,13 @@ def play_video(frames_list):
 
 if __name__ == "__main__":
     try:
-        video_title = sys.argv[1] if len(sys.argv) > 1 else ''
+        video_title: Optional[str] = sys.argv[1] if len(sys.argv) > 1 else ''
 
         if video_title:
             video_to_frames(video_title, 'frames')
             resize_images('frames')
-            frames_list = frames_to_arrays('frames')
-            frames_list = greyscale_to_ascii(frames_list)
+            frames_list_ints: List[List[List[int]]] = frames_to_arrays('frames')
+            frames_list_strs: List[List[List[str]]] = greyscale_to_ascii(frames_list_ints)
         else:
             raise InsufficientArgumentsError("No video title provided. Please provide a video title as an argument.")
 
@@ -231,4 +213,4 @@ if __name__ == "__main__":
         sys.exit(1)
 
 
-    play_video(frames_list)
+    play_video(frames_list_strs)
