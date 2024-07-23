@@ -5,6 +5,7 @@ from typing import List, Optional, Union, TypeVar
 from PIL import Image
 import cv2
 import curses
+import shutil
 
 class InsufficientArgumentsError(Exception):
     """Raised when insufficient arguments are provided."""
@@ -173,6 +174,17 @@ def clear_screen() -> None:
 
 
 def play_video(frames_list: List[List[List[str]]]) -> None:
+    # Get terminal size
+    terminal_size = shutil.get_terminal_size()
+
+    # Check if terminal is large enough
+    required_rows = len(frames_list[0])
+    required_cols = len(frames_list[0][0])
+
+    if terminal_size.lines < required_rows or terminal_size.columns < required_cols:
+        raise ValueError(f"Terminal window too small. Need at least {required_rows}x{required_cols}, "
+                         f"but got {terminal_size.lines}x{terminal_size.columns}")
+
     # Initialize curses
     stdscr = curses.initscr()
     curses.noecho()
@@ -192,7 +204,6 @@ def play_video(frames_list: List[List[List[str]]]) -> None:
         # Clean up curses
         curses.nocbreak()
         stdscr.keypad(False)
-        #curses.echo()
         curses.endwin()
 
 if __name__ == "__main__":
@@ -207,10 +218,11 @@ if __name__ == "__main__":
         else:
             raise InsufficientArgumentsError("No video title provided. Please provide a video title as an argument.")
 
+        play_video(frames_list_strs)
 
     except InsufficientArgumentsError as e:
         print(f"Error: {e}")
         sys.exit(1)
-
-
-    play_video(frames_list_strs)
+    except ValueError as e:
+        print(f"Error: {e}")
+        sys.exit(1)
